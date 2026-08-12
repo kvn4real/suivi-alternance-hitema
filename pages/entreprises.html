@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Entreprises — Alternance Suite</title>
+<link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+<div class="app-shell">
+  <div class="sidebar-scrim" id="sidebar-scrim"></div>
+  <aside class="sidebar">
+    <div class="sidebar-brand"><span class="dot"></span><span id="sidebar-brand-name">Alternance Suite</span></div>
+    <nav class="sidebar-nav" id="sidebar-nav"></nav>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button class="hamburger" id="hamburger">☰</button>
+        <div class="topbar-title" id="topbar-title">Entreprises</div>
+      </div>
+      <div id="topbar-user" style="font-size:13px;color:var(--text-muted);font-weight:600;"></div>
+    </header>
+
+    <div class="content">
+      <div class="toolbar" id="toolbar-actions"></div>
+
+      <div class="toolbar">
+        <input type="text" class="search-input" id="search-input" placeholder="Rechercher une entreprise..." style="padding:10px 12px;border-radius:10px;border:1px solid var(--border);" />
+      </div>
+      <div class="filter-chips" id="filter-chips" style="margin-bottom:16px;"></div>
+
+      <div class="panel">
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr><th>Nom</th><th>Secteur</th><th>Ville</th><th>Poste</th><th>Statut</th><th>Date</th></tr>
+            </thead>
+            <tbody id="entreprises-tbody"></tbody>
+          </table>
+        </div>
+        <div id="empty-state"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal : détail entreprise -->
+<div class="modal-overlay hidden" id="modal-detail">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="detail-nom">Entreprise</h3>
+      <button class="modal-close" onclick="closeModal('modal-detail')">✕</button>
+    </div>
+    <div class="modal-body" id="detail-body"></div>
+  </div>
+</div>
+
+<!-- Modal : ajout / édition entreprise -->
+<div class="modal-overlay hidden" id="modal-form">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="form-title">Ajouter une entreprise</h3>
+      <button class="modal-close" onclick="closeModal('modal-form')">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="entreprise-form">
+        <input type="hidden" id="ent-id" />
+        <div class="form-grid">
+          <div class="field"><label>Nom *</label><input id="ent-nom" required /></div>
+          <div class="field"><label>Poste</label><input id="ent-poste" /></div>
+          <div class="field"><label>Email</label><input id="ent-email" type="email" /></div>
+          <div class="field"><label>Téléphone</label><input id="ent-telephone" /></div>
+          <div class="field"><label>Site web</label><input id="ent-site_web" placeholder="https://" /></div>
+          <div class="field"><label>Localisation</label><input id="ent-localisation" /></div>
+          <div class="field"><label>Secteur</label><input id="ent-secteur" /></div>
+          <div class="field"><label>Statut</label>
+            <select id="ent-statut">
+              <option>À contacter</option><option>Contactée</option><option>Candidature envoyée</option>
+              <option>Relance</option><option>Entretien</option><option>Acceptée</option><option>Refusée</option>
+            </select>
+          </div>
+          <div class="field"><label>Date de candidature</label><input id="ent-date_candidature" type="date" /></div>
+          <div class="field"><label>Date de relance</label><input id="ent-date_relance" type="date" /></div>
+          <div class="field"><label>Campagne</label><select id="ent-campagne_id"><option value="">— Aucune —</option></select></div>
+        </div>
+        <div class="field"><label>URL de l'offre</label><input id="ent-url_offre" placeholder="https://" /></div>
+        <div class="field"><label>Description</label><textarea id="ent-description"></textarea></div>
+        <div class="field"><label>Notes</label><textarea id="ent-notes"></textarea></div>
+        <div class="error-msg" id="form-error"></div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-form')">Annuler</button>
+      <button class="btn btn-primary" id="btn-save-entreprise">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal : import CSV -->
+<div class="modal-overlay hidden" id="modal-import">
+  <div class="modal">
+    <div class="modal-header"><h3>Importer des entreprises (CSV)</h3><button class="modal-close" onclick="closeModal('modal-import')">✕</button></div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">
+        Colonnes attendues : nom, email, site_web, localisation, secteur, poste, url_offre, description, telephone.
+        Seule la colonne <b>nom</b> est obligatoire.
+      </p>
+      <input type="file" id="csv-file" accept=".csv" />
+      <div id="csv-preview" style="margin-top:16px;"></div>
+      <div class="error-msg" id="import-error"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-import')">Annuler</button>
+      <button class="btn btn-primary" id="btn-confirm-import" disabled>Importer</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../config.js"></script>
+<script src="../js/supabaseClient.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/app.js"></script>
+<script src="../js/entreprises.js"></script>
+</body>
+</html>
