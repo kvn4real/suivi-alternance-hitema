@@ -85,13 +85,13 @@ h3 .icon { color: var(--text); }
   transition: all .15s ease;
   white-space: nowrap;
 }
-.btn:hover { background: #f2f3f5; }
+.btn:hover { background: var(--surface-raised); }
 .btn-primary { background: var(--primary); color: #fff; border-color: var(--primary); }
 .btn-primary:hover { background: var(--primary-dark); }
 .btn-danger { background: var(--danger); color: #fff; border-color: var(--danger); }
-.btn-danger:hover { background: #b91c1c; }
+.btn-danger:hover { background: #c94742; }
 .btn-ghost { background: transparent; border-color: transparent; }
-.btn-ghost:hover { background: #f2f3f5; }
+.btn-ghost:hover { background: var(--surface-raised); }
 .btn-sm { padding: 6px 10px; font-size: 13px; }
 .btn:disabled { opacity: .5; cursor: not-allowed; }
 .btn-block { width: 100%; justify-content: center; }
@@ -141,6 +141,8 @@ h3 .icon { color: var(--text); }
   border-bottom: 1px solid var(--border);
 }
 .sidebar-brand .dot, .auth-brand .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--primary); flex-shrink: 0; }
+.brand-mark { width: 26px; height: 26px; flex-shrink: 0; display: block; }
+.auth-brand .brand-mark { width: 32px; height: 32px; }
 .sidebar-nav { flex: 1; padding: 12px; display: flex; flex-direction: column; gap: 2px; overflow-y: auto; }
 .sidebar-nav a {
   display: flex;
@@ -152,7 +154,7 @@ h3 .icon { color: var(--text); }
   font-size: 14px;
   color: var(--text-muted);
 }
-.sidebar-nav a:hover { background: #f2f3f5; color: var(--text); }
+.sidebar-nav a:hover { background: var(--surface-raised); color: var(--text); }
 .sidebar-nav a.active { background: var(--primary-soft); color: var(--primary-dark); }
 .sidebar-footer { padding: 12px; border-top: 1px solid var(--border); }
 
@@ -221,7 +223,7 @@ table.data-table th {
   border-bottom: 1px solid var(--border);
 }
 table.data-table td { padding: 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
-table.data-table tr:hover td { background: #fafbfc; }
+table.data-table tr:hover td { background: var(--surface-raised); }
 table.data-table tr { cursor: pointer; }
 
 /* ---------- Badges statut ---------- */
@@ -343,7 +345,7 @@ table.data-table tr { cursor: pointer; }
 }
 .auth-brand { display: flex; align-items: center; gap: 8px; justify-content: center; margin-bottom: 6px; font-weight: 800; font-size: 20px; }
 .auth-subtitle { text-align: center; color: var(--text-muted); margin-bottom: 24px; font-size: 14px; }
-.auth-tabs { display: flex; gap: 6px; background: #f2f3f5; padding: 4px; border-radius: var(--radius); margin-bottom: 20px; }
+.auth-tabs { display: flex; gap: 6px; background: var(--surface-raised); padding: 4px; border-radius: var(--radius); margin-bottom: 20px; }
 .auth-tabs button { flex: 1; border: none; background: transparent; padding: 8px; border-radius: 6px; font-weight: 700; color: var(--text-muted); }
 .auth-tabs button.active { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
 .auth-link { display: block; text-align: center; margin-top: 14px; font-size: 13px; color: var(--primary-dark); font-weight: 600; }
