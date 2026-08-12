@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Campagnes — Alternance Suite</title>
+<link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+<div class="app-shell">
+  <div class="sidebar-scrim" id="sidebar-scrim"></div>
+  <aside class="sidebar">
+    <div class="sidebar-brand"><span class="dot"></span><span id="sidebar-brand-name">Alternance Suite</span></div>
+    <nav class="sidebar-nav" id="sidebar-nav"></nav>
+  </aside>
+  <div class="main">
+    <header class="topbar">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button class="hamburger" id="hamburger">☰</button>
+        <div class="topbar-title" id="topbar-title">Campagnes</div>
+      </div>
+      <div id="topbar-user" style="font-size:13px;color:var(--text-muted);font-weight:600;"></div>
+    </header>
+    <div class="content">
+      <div class="toolbar" id="toolbar-actions"></div>
+      <div id="campagnes-grid" class="stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));"></div>
+
+      <div class="panel hidden" id="campagne-detail-panel">
+        <div class="panel-header">
+          <h3 id="campagne-detail-title"></h3>
+          <button class="btn btn-sm btn-ghost" id="btn-close-campagne-detail">← Toutes les campagnes</button>
+        </div>
+        <div id="campagne-entreprises"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="modal-campagne">
+  <div class="modal">
+    <div class="modal-header"><h3>Nouvelle campagne</h3><button class="modal-close" onclick="closeModal('modal-campagne')">✕</button></div>
+    <div class="modal-body">
+      <div class="field"><label>Nom *</label><input id="camp-nom" placeholder="Campagne #3" /></div>
+      <div class="form-grid">
+        <div class="field"><label>Date de début</label><input id="camp-date_debut" type="date" /></div>
+        <div class="field"><label>Date de fin</label><input id="camp-date_fin" type="date" /></div>
+      </div>
+      <div class="field"><label>Description</label><textarea id="camp-description" placeholder="Ex : 50 entreprises ciblées secteur IT Île-de-France"></textarea></div>
+      <div class="error-msg" id="camp-error"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-campagne')">Annuler</button>
+      <button class="btn btn-primary" id="btn-save-campagne">Créer</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../config.js"></script>
+<script src="../js/supabaseClient.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/app.js"></script>
+<script src="../js/campagnes.js"></script>
+</body>
+</html>

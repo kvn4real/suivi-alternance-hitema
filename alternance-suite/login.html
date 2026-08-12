@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Connexion — Alternance Suite</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-brand"><span style="color:var(--primary);">●</span> Alternance Suite</div>
+    <p class="auth-subtitle">Gère ta recherche d'alternance de A à Z</p>
+
+    <div class="auth-tabs" id="auth-tabs">
+      <button id="tab-login" class="active" type="button">Connexion</button>
+      <button id="tab-signup" type="button">Inscription</button>
+    </div>
+
+    <!-- Connexion -->
+    <form id="form-login">
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="login-email" required autocomplete="email" />
+      </div>
+      <div class="field">
+        <label>Mot de passe</label>
+        <input type="password" id="login-password" required autocomplete="current-password" />
+      </div>
+      <div class="error-msg" id="login-error"></div>
+      <button type="submit" class="btn btn-primary btn-block">Se connecter</button>
+      <a href="#" id="link-forgot" class="auth-link">Mot de passe oublié ?</a>
+    </form>
+
+    <!-- Inscription -->
+    <form id="form-signup" class="hidden">
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="signup-email" required autocomplete="email" />
+      </div>
+      <div class="field">
+        <label>Mot de passe</label>
+        <input type="password" id="signup-password" required autocomplete="new-password" minlength="8" />
+      </div>
+      <div class="field">
+        <label>Confirmation du mot de passe</label>
+        <input type="password" id="signup-password-confirm" required autocomplete="new-password" minlength="8" />
+      </div>
+      <div class="error-msg" id="signup-error"></div>
+      <div class="success-msg" id="signup-success"></div>
+      <button type="submit" class="btn btn-primary btn-block">Créer mon compte</button>
+    </form>
+
+    <!-- Mot de passe oublié -->
+    <form id="form-reset" class="hidden">
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;">
+        Indique ton email, tu recevras un lien pour réinitialiser ton mot de passe.
+      </p>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="reset-email" required autocomplete="email" />
+      </div>
+      <div class="success-msg" id="reset-message"></div>
+      <button type="submit" class="btn btn-primary btn-block">Envoyer le lien</button>
+      <a href="#" id="link-back-to-login" class="auth-link">Retour à la connexion</a>
+    </form>
+
+    <!-- Nouveau mot de passe (invitation / reset) -->
+    <form id="form-newpassword" class="hidden">
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;">
+        Choisis ton mot de passe pour accéder à ton espace.
+      </p>
+      <div class="field">
+        <label>Nouveau mot de passe</label>
+        <input type="password" id="newpassword-password" required minlength="8" autocomplete="new-password" />
+      </div>
+      <div class="field">
+        <label>Confirmation</label>
+        <input type="password" id="newpassword-confirm" required minlength="8" autocomplete="new-password" />
+      </div>
+      <div class="error-msg" id="newpassword-error"></div>
+      <button type="submit" class="btn btn-primary btn-block">Valider</button>
+    </form>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="js/supabaseClient.js"></script>
+<script src="js/auth.js"></script>
+<script>initAuthPage();</script>
+</body>
+</html>
