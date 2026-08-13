@@ -35,7 +35,7 @@ async function showList() {
 
   const wrap = document.getElementById("letters-table");
   if (error || !data || !data.length) {
-    wrap.innerHTML = `<div class="empty-state"><div class="icon">✉️</div>Aucune lettre générée pour le moment.</div>`;
+    wrap.innerHTML = `<div class="empty-state"><div class="icon">${ICONS.mail}</div>Aucune lettre générée pour le moment.</div>`;
     return;
   }
 
@@ -86,17 +86,17 @@ async function showEditor(letterId) {
   const isCandidate = CUR_PROFILE.role === "candidate";
 
   document.getElementById("editor-actions").innerHTML = `
-    <button class="btn btn-sm" id="btn-copy">📋 Copier</button>
-    <button class="btn btn-sm" id="btn-pdf">📄 Télécharger PDF</button>
-    ${isCandidate ? `<button class="btn btn-sm" id="btn-edit-toggle">✏️ Modifier</button>` : ""}
-    ${isCandidate ? `<button class="btn btn-sm btn-primary hidden" id="btn-save">💾 Enregistrer</button>` : ""}
-    ${isCandidate ? `<button class="btn btn-sm" id="btn-regenerate">🔄 Régénérer</button>` : ""}
-    ${isCandidate ? `<button class="btn btn-sm btn-danger" id="btn-delete-letter">🗑️ Supprimer</button>` : ""}
+    <button class="btn btn-sm" id="btn-copy"><span class="icon">${ICONS.copy}</span>Copier</button>
+    <button class="btn btn-sm" id="btn-pdf"><span class="icon">${ICONS.file}</span>Télécharger PDF</button>
+    ${isCandidate ? `<button class="btn btn-sm" id="btn-edit-toggle"><span class="icon">${ICONS.edit}</span>Modifier</button>` : ""}
+    ${isCandidate ? `<button class="btn btn-sm btn-primary hidden" id="btn-save"><span class="icon">${ICONS.save}</span>Enregistrer</button>` : ""}
+    ${isCandidate ? `<button class="btn btn-sm" id="btn-regenerate"><span class="icon">${ICONS.refresh}</span>Régénérer</button>` : ""}
+    ${isCandidate ? `<button class="btn btn-sm btn-danger" id="btn-delete-letter"><span class="icon">${ICONS.trash}</span>Supprimer</button>` : ""}
   `;
 
   document.getElementById("btn-copy").addEventListener("click", async () => {
     await navigator.clipboard.writeText(textarea.value);
-    flashButton("btn-copy", "✅ Copié !");
+    flashButton("btn-copy", `<span class="icon">${ICONS.check}</span>Copié !`);
   });
 
   document.getElementById("btn-pdf").addEventListener("click", () => downloadPdf(textarea.value, lettre.entreprises?.nom));
@@ -116,7 +116,7 @@ async function showEditor(letterId) {
       if (updErr) { alert("Erreur : " + updErr.message); return; }
       textarea.readOnly = true;
       document.getElementById("btn-save").classList.add("hidden");
-      flashButton("btn-save", "Enregistré ✓");
+      flashButton("btn-save", `<span class="icon">${ICONS.check}</span>Enregistré`);
       await logActivity(CUR_CANDIDATE_ID, lettre.entreprises?.id, "Lettre modifiée", `Lettre modifiée pour ${lettre.entreprises?.nom || ""}`);
     });
 
@@ -135,7 +135,7 @@ async function showEditor(letterId) {
         window.location.href = `lettres.html?id=${data.lettre.id}`;
       } finally {
         btn.disabled = false;
-        btn.textContent = "🔄 Régénérer";
+        btn.innerHTML = `<span class="icon">${ICONS.refresh}</span>Régénérer`;
       }
     });
 
@@ -148,11 +148,11 @@ async function showEditor(letterId) {
   }
 }
 
-function flashButton(id, text) {
+function flashButton(id, html) {
   const btn = document.getElementById(id);
-  const original = btn.textContent;
-  btn.textContent = text;
-  setTimeout(() => { btn.textContent = original; }, 1500);
+  const original = btn.innerHTML;
+  btn.innerHTML = html;
+  setTimeout(() => { btn.innerHTML = original; }, 1500);
 }
 
 function downloadPdf(content, entrepriseName) {
