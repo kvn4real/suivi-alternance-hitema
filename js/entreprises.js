@@ -37,7 +37,7 @@ function renderToolbar() {
   if (CURRENT_PROFILE.role === "candidate") {
     toolbar.innerHTML = `
       <button class="btn btn-primary" id="btn-add-entreprise">+ Ajouter une entreprise</button>
-      <button class="btn" id="btn-open-import">📥 Importer des entreprises</button>
+      <button class="btn" id="btn-open-import"><span class="icon">${ICONS.download}</span>Importer des entreprises</button>
     `;
     document.getElementById("btn-add-entreprise").addEventListener("click", () => openEntrepriseForm(null));
     document.getElementById("btn-open-import").addEventListener("click", openImportModal);
@@ -109,7 +109,7 @@ function renderTable() {
 
   if (!rows.length) {
     tbody.innerHTML = "";
-    empty.innerHTML = `<div class="empty-state"><div class="icon">🏢</div>Aucune entreprise trouvée.</div>`;
+    empty.innerHTML = `<div class="empty-state"><div class="icon">${ICONS.building}</div>Aucune entreprise trouvée.</div>`;
     return;
   }
   empty.innerHTML = "";
@@ -163,16 +163,16 @@ async function openDetail(id) {
     ` : ""}
 
     <div class="action-row">
-      ${e.site_web ? `<a class="btn btn-sm" href="${escapeHtml(e.site_web)}" target="_blank" rel="noopener">🌐 Site</a>` : ""}
-      ${e.url_offre ? `<a class="btn btn-sm" href="${escapeHtml(e.url_offre)}" target="_blank" rel="noopener">📄 Offre</a>` : ""}
-      ${e.email ? `<a class="btn btn-sm" href="mailto:${escapeHtml(e.email)}">✉️ Contacter</a>` : ""}
-      ${isCandidate ? `<button class="btn btn-sm btn-primary" id="btn-generate-letter">✨ Générer ma lettre</button>` : ""}
-      ${isCandidate ? `<button class="btn btn-sm" id="btn-edit-entreprise">✏️ Modifier</button>` : ""}
-      ${isCandidate ? `<button class="btn btn-sm btn-danger" id="btn-delete-entreprise">🗑️ Supprimer</button>` : ""}
+      ${e.site_web ? `<a class="btn btn-sm" href="${escapeHtml(e.site_web)}" target="_blank" rel="noopener"><span class="icon">${ICONS.globe}</span>Site</a>` : ""}
+      ${e.url_offre ? `<a class="btn btn-sm" href="${escapeHtml(e.url_offre)}" target="_blank" rel="noopener"><span class="icon">${ICONS.file}</span>Offre</a>` : ""}
+      ${e.email ? `<a class="btn btn-sm" href="mailto:${escapeHtml(e.email)}"><span class="icon">${ICONS.mail}</span>Contacter</a>` : ""}
+      ${isCandidate ? `<button class="btn btn-sm btn-primary" id="btn-generate-letter"><span class="icon">${ICONS.sparkle}</span>Générer ma lettre</button>` : ""}
+      ${isCandidate ? `<button class="btn btn-sm" id="btn-edit-entreprise"><span class="icon">${ICONS.edit}</span>Modifier</button>` : ""}
+      ${isCandidate ? `<button class="btn btn-sm btn-danger" id="btn-delete-entreprise"><span class="icon">${ICONS.trash}</span>Supprimer</button>` : ""}
     </div>
 
     <div style="margin-top:20px;">
-      <h4 style="margin-bottom:10px;">📝 Notes</h4>
+      <h4 style="margin-bottom:10px;display:flex;align-items:center;"><span class="icon">${ICONS.edit}</span>Notes</h4>
       <div id="notes-list"></div>
       <form id="note-form" style="margin-top:10px;display:flex;gap:8px;">
         <input type="text" id="note-input" placeholder="Ajouter une note..." style="flex:1;padding:9px 12px;border-radius:10px;border:1px solid var(--border);" />
@@ -181,7 +181,7 @@ async function openDetail(id) {
     </div>
 
     <div style="margin-top:20px;">
-      <h4 style="margin-bottom:10px;">✉️ Historique des lettres</h4>
+      <h4 style="margin-bottom:10px;display:flex;align-items:center;"><span class="icon">${ICONS.mail}</span>Historique des lettres</h4>
       <div id="letters-list"></div>
     </div>
   `;
@@ -231,7 +231,7 @@ async function loadNotes(entrepriseId) {
     const authorName = isCompanion ? "l'accompagnateur" : (n.author ? [n.author.prenom, n.author.nom].filter(Boolean).join(" ") || "Kevin" : "Kevin");
     return `
       <div class="note-item">
-        <span class="note-author ${isCompanion ? "companion" : ""}">💬 Note de ${escapeHtml(authorName)}</span>
+        <span class="note-author ${isCompanion ? "companion" : ""}" style="display:inline-flex;align-items:center;"><span class="icon">${ICONS.message}</span>Note de ${escapeHtml(authorName)}</span>
         <span class="note-date">${fmtDateTime(n.created_at)}</span>
         <div class="note-content">${escapeHtml(n.contenu)}</div>
       </div>
@@ -279,7 +279,7 @@ async function loadLettresForEntreprise(entrepriseId) {
   list.innerHTML = data.map((l, i) => `
     <div class="detail-row">
       <span class="k">Lettre #${data.length - i} — ${escapeHtml(l.titre || "")}</span>
-      <span class="v"><a href="lettres.html?id=${l.id}" class="btn btn-sm btn-ghost">${fmtDate(l.created_at)} · Voir →</a></span>
+      <span class="v"><a href="lettres.html?id=${l.id}" class="btn btn-sm btn-ghost">${fmtDate(l.created_at)} · Voir <span class="icon" style="margin-right:0;margin-left:4px;">${ICONS.arrowRight}</span></a></span>
     </div>
   `).join("");
 }
@@ -310,7 +310,7 @@ async function generateLetter(entrepriseId, nom) {
     console.error(e);
   } finally {
     btn.disabled = false;
-    btn.textContent = "✨ Générer ma lettre";
+    btn.innerHTML = `<span class="icon">${ICONS.sparkle}</span>Générer ma lettre`;
   }
 }
 
