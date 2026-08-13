@@ -7,6 +7,7 @@
   const candidateId = profile.role === "candidate" ? profile.id : profile.candidate_id;
 
   renderShell({ profile, activePage: "activite.html", title: "Activité" });
+  document.getElementById("activity-list").innerHTML = `<div class="panel" style="box-shadow:none;border:none;padding:0;">${skeletonRows(5, 20)}</div>`;
 
   const { data } = await supabaseClient
     .from("activity_logs")
