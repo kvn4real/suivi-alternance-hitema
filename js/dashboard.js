@@ -54,21 +54,21 @@
 
       <div class="panel">
         <div class="panel-header">
-          <h3>⚠️ Relances à effectuer</h3>
-          <a href="relances.html" class="btn btn-sm btn-ghost">Voir tout →</a>
+          <h3 style="display:flex;align-items:center;"><span class="icon">${ICONS.alert}</span>Relances à effectuer</h3>
+          <a href="relances.html" class="btn btn-sm btn-ghost">Voir tout <span class="icon" style="margin-right:0;margin-left:6px;">${ICONS.arrowRight}</span></a>
         </div>
         ${relances.length ? relances.map(e => `
           <div class="detail-row">
             <span class="k">${escapeHtml(e.nom)}</span>
             <span class="v">${relanceLabel(e.diffDays)}</span>
           </div>
-        `).join("") : `<div class="empty-state">Aucune relance urgente 🎉</div>`}
+        `).join("") : `<div class="empty-state">Aucune relance urgente.</div>`}
       </div>
 
       <div class="panel">
         <div class="panel-header">
           <h3>Entreprises récentes</h3>
-          <a href="entreprises.html" class="btn btn-sm btn-ghost">Voir tout →</a>
+          <a href="entreprises.html" class="btn btn-sm btn-ghost">Voir tout <span class="icon" style="margin-right:0;margin-left:6px;">${ICONS.arrowRight}</span></a>
         </div>
         ${recentes.length ? recentes.map(e => `
           <div class="detail-row">
