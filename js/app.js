@@ -102,6 +102,7 @@ function renderShell({ profile, activePage, title }) {
   document.getElementById("sidebar-nav").innerHTML = nav.map(item => `
     <a href="${item.href}" class="${item.href === activePage ? "active" : ""}">
       <span class="icon">${item.icon}</span><span>${item.label}</span>
+      ${item.href === "relances.html" ? `<span class="nav-badge hidden" id="nav-badge-relances"></span>` : ""}
     </a>
   `).join("") + `
     <a href="#" id="logout-link" style="margin-top:auto;color:var(--danger);">
@@ -138,6 +139,34 @@ function renderShell({ profile, activePage, title }) {
       scrim.classList.remove("open");
     });
   }
+
+  loadRelancesBadge(profile);
+}
+
+/**
+ * Charge le nombre de relances en retard ou dues aujourd'hui et met à jour
+ * le badge affiché à côté du lien "Relances" dans la sidebar.
+ */
+async function loadRelancesBadge(profile) {
+  const badge = document.getElementById("nav-badge-relances");
+  if (!badge) return;
+  const candidateId = profile.role === "candidate" ? profile.id : profile.candidate_id;
+  const todayStr = new Date().toISOString().slice(0, 10);
+
+  const { count, error } = await supabaseClient
+    .from("entreprises")
+    .select("id", { count: "exact", head: true })
+    .eq("candidate_id", candidateId)
+    .not("date_relance", "is", null)
+    .lte("date_relance", todayStr);
+
+  if (error) return;
+  if (count > 0) {
+    badge.textContent = count > 99 ? "99+" : String(count);
+    badge.classList.remove("hidden");
+  } else {
+    badge.classList.add("hidden");
+  }
 }
 
 async function logActivity(candidateId, entrepriseId, action, description) {
@@ -156,6 +185,85 @@ function closeModal(id) {
   document.getElementById(id).classList.add("hidden");
 }
 
-async function confirmDialog(message) {
-  return window.confirm(message);
+/**
+ * Affiche une notification discrète (toast) en bas à droite.
+ * type : "success" | "error" | "info"
+ */
+function showToast(message, type = "info") {
+  let container = document.getElementById("toast-container");
+  if (!container) {
+    container = document.createElement("div");
+    container.id = "toast-container";
+    container.className = "toast-container";
+    document.body.appendChild(container);
+  }
+  const toast = document.createElement("div");
+  toast.className = `toast toast-${type}`;
+  const iconMap = { success: ICONS.check, error: ICONS.alert, info: ICONS.message };
+  toast.innerHTML = `<span class="icon">${iconMap[type] || ICONS.message}</span><span>${escapeHtml(message)}</span>`;
+  container.appendChild(toast);
+
+  requestAnimationFrame(() => toast.classList.add("show"));
+  setTimeout(() => {
+    toast.classList.remove("show");
+    setTimeout(() => toast.remove(), 200);
+  }, 4000);
+}
+
+/**
+ * Modal de confirmation stylée (remplace window.confirm).
+ * Retourne une Promise<boolean>.
+ */
+function confirmDialog(message, { title = "Confirmer l'action", danger = true } = {}) {
+  return new Promise((resolve) => {
+    let overlay = document.getElementById("confirm-overlay");
+    if (overlay) overlay.remove();
+
+    overlay = document.createElement("div");
+    overlay.id = "confirm-overlay";
+    overlay.className = "modal-overlay";
+    overlay.innerHTML = `
+      <div class="modal" style="max-width:400px;">
+        <div class="modal-header">
+          <h3>${escapeHtml(title)}</h3>
+        </div>
+        <div class="modal-body">
+          <p style="color:var(--text-muted);">${escapeHtml(message)}</p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn" id="confirm-cancel">Annuler</button>
+          <button class="btn ${danger ? "btn-danger" : "btn-primary"}" id="confirm-ok">Confirmer</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+
+    const cleanup = (result) => {
+      overlay.remove();
+      resolve(result);
+    };
+    overlay.querySelector("#confirm-cancel").addEventListener("click", () => cleanup(false));
+    overlay.querySelector("#confirm-ok").addEventListener("click", () => cleanup(true));
+    overlay.addEventListener("click", (e) => { if (e.target === overlay) cleanup(false); });
+  });
+}
+
+/**
+ * Génère des lignes de "skeleton" (placeholders animés) à afficher pendant
+ * un chargement, à la place d'un simple spinner.
+ */
+function skeletonRows(count = 4, height = 18) {
+  return Array.from({ length: count }).map((_, i) => `
+    <div class="skeleton-line" style="height:${height}px;width:${90 - (i % 3) * 12}%;"></div>
+  `).join("");
+}
+
+function skeletonCards(count = 3) {
+  return Array.from({ length: count }).map(() => `
+    <div class="panel skeleton-card">
+      <div class="skeleton-line" style="width:40%;height:14px;"></div>
+      <div class="skeleton-line" style="width:70%;height:22px;margin-top:10px;"></div>
+      <div class="skeleton-line" style="width:50%;height:14px;margin-top:10px;"></div>
+    </div>
+  `).join("");
 }
