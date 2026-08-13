@@ -88,7 +88,7 @@
 function renderCvStatus(cvUrl) {
   const el = document.getElementById("cv-current");
   el.innerHTML = cvUrl
-    ? `<span style="color:var(--primary-dark);font-weight:600;">📄 Un CV est déjà enregistré.</span> <button type="button" class="btn btn-sm btn-ghost" id="btn-download-cv">Télécharger</button>`
+    ? `<span style="color:var(--primary-dark);font-weight:600;display:inline-flex;align-items:center;"><span class="icon">${ICONS.file}</span>Un CV est déjà enregistré.</span> <button type="button" class="btn btn-sm btn-ghost" id="btn-download-cv">Télécharger</button>`
     : `<span style="color:var(--text-muted);">Aucun CV enregistré pour le moment.</span>`;
 
   const btn = document.getElementById("btn-download-cv");
