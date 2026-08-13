@@ -371,6 +371,80 @@ table.data-table tr { cursor: pointer; }
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* ---------- Toggle de vue (tableau / kanban) ---------- */
+.view-toggle {
+  display: inline-flex;
+  gap: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 4px;
+}
+.view-toggle-btn {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 7px 14px;
+  border-radius: 7px;
+}
+.view-toggle-btn.active { background: var(--primary); color: #04120c; }
+.view-toggle-btn:not(.active):hover { background: var(--surface-raised); color: var(--text); }
+
+/* ---------- Kanban ---------- */
+.kanban-board {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  padding-bottom: 12px;
+  align-items: flex-start;
+}
+.kanban-column {
+  flex: 0 0 270px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 12px;
+  min-height: 120px;
+  transition: background .15s ease, border-color .15s ease;
+}
+.kanban-column.drag-over {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+}
+.kanban-column-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 4px 12px;
+  font-size: 13px;
+  font-weight: 700;
+}
+.kanban-column-count {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--text-muted);
+  background: var(--surface-raised);
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+.kanban-cards { display: flex; flex-direction: column; gap: 8px; min-height: 40px; }
+.kanban-card {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  cursor: grab;
+  font-size: 13px;
+}
+.kanban-card:hover { border-color: var(--primary); }
+.kanban-card.dragging { opacity: .4; }
+.kanban-card .kc-nom { font-weight: 700; margin-bottom: 2px; }
+.kanban-card .kc-poste { color: var(--text-muted); font-size: 12px; }
+.kanban-card .kc-date { color: var(--text-muted); font-size: 11px; margin-top: 6px; }
+.kanban-empty { color: var(--text-muted); font-size: 12px; text-align: center; padding: 16px 4px; }
+
 /* ---------- Toasts ---------- */
 .toast-container {
   position: fixed;
