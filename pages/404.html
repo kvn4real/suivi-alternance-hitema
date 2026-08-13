@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Page introuvable — Alternance Suite</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico" />
+<link rel="stylesheet" href="style.css" />
+<style>
+  .error-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg);
+    padding: 20px;
+    text-align: center;
+  }
+  .error-card {
+    max-width: 460px;
+  }
+  .error-code {
+    font-size: 88px;
+    font-weight: 800;
+    line-height: 1;
+    background: linear-gradient(135deg, #1cc691, #0f7a58);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 8px;
+  }
+  .error-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .error-text {
+    color: var(--text-muted);
+    font-size: 14px;
+    margin-bottom: 28px;
+    line-height: 1.6;
+  }
+  .error-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+</style>
+</head>
+<body>
+<div class="error-page">
+  <div class="error-card">
+    <div class="auth-brand" style="justify-content:center;margin-bottom:20px;">
+      <svg class="brand-mark" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Alternance Suite">
+        <defs>
+          <linearGradient id="brandGradient" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#1cc691"/>
+            <stop offset="1" stop-color="#0f7a58"/>
+          </linearGradient>
+        </defs>
+        <rect x="2" y="2" width="60" height="60" rx="16" fill="url(#brandGradient)"/>
+        <g fill="none" stroke="#0b0d12" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M32 15 L17 47.5"/>
+          <path d="M32 15 L47 47.5"/>
+          <path d="M23.3 34.6 H40.7"/>
+        </g>
+      </svg>
+      Alternance Suite
+    </div>
+
+    <div class="error-code">404</div>
+    <div class="error-title">Cette page n'existe pas</div>
+    <p class="error-text">
+      Le lien que tu as suivi est peut-être incorrect, ou la page a été déplacée.
+      Vérifie l'adresse ou retourne à ton espace.
+    </p>
+
+    <div class="error-actions">
+      <a href="/pages/dashboard.html" class="btn btn-primary">Retour au dashboard</a>
+      <a href="/login.html" class="btn">Page de connexion</a>
+    </div>
+  </div>
+</div>
+</body>
+</html>
