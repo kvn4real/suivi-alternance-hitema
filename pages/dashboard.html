@@ -25,12 +25,23 @@
     </header>
 
     <div class="content" id="content">
-      <div class="loading-spinner"></div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="skeleton-line" style="width:60%;height:12px;"></div><div class="skeleton-line" style="width:40%;height:26px;margin-top:8px;"></div></div>
+        <div class="stat-card"><div class="skeleton-line" style="width:60%;height:12px;"></div><div class="skeleton-line" style="width:40%;height:26px;margin-top:8px;"></div></div>
+        <div class="stat-card"><div class="skeleton-line" style="width:60%;height:12px;"></div><div class="skeleton-line" style="width:40%;height:26px;margin-top:8px;"></div></div>
+        <div class="stat-card"><div class="skeleton-line" style="width:60%;height:12px;"></div><div class="skeleton-line" style="width:40%;height:26px;margin-top:8px;"></div></div>
+      </div>
+      <div class="panel">
+        <div class="skeleton-line" style="width:30%;height:16px;margin-bottom:14px;"></div>
+        <div class="skeleton-line" style="height:16px;margin-bottom:10px;"></div>
+        <div class="skeleton-line" style="height:16px;width:80%;"></div>
+      </div>
     </div>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <script src="../config.js"></script>
 <script src="../js/supabaseClient.js"></script>
 <script src="../js/auth.js"></script>
