@@ -32,7 +32,7 @@ async function requireAuth() {
       .single();
     if (createErr) {
       console.error(createErr);
-      alert("Impossible de charger votre profil. Reconnectez-vous.");
+      showToast("Impossible de charger votre profil. Reconnectez-vous.", "error");
       await supabaseClient.auth.signOut();
       window.location.href = "/login.html";
       return null;
