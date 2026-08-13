@@ -17,7 +17,7 @@
 
   const list = document.getElementById("activity-list");
   if (!data || !data.length) {
-    list.innerHTML = `<div class="empty-state"><div class="icon">📊</div>Aucune activité enregistrée pour le moment.</div>`;
+    list.innerHTML = `<div class="empty-state"><div class="icon">${ICONS.chart}</div>Aucune activité enregistrée pour le moment.</div>`;
     return;
   }
 
