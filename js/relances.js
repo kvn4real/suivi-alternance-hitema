@@ -27,7 +27,7 @@
   const all = withDiff;
 
   function label(diff) {
-    if (diff < 0) return `⏰ En retard de ${Math.abs(diff)} jour(s)`;
+    if (diff < 0) return `<span class="icon" style="margin-right:4px;">${ICONS.clock}</span>En retard de ${Math.abs(diff)} jour(s)`;
     if (diff === 0) return "Aujourd'hui";
     if (diff === 1) return "Demain";
     return `Dans ${diff} jours`;
@@ -37,10 +37,10 @@
     ? urgent.map(e => `
       <div class="detail-row">
         <span class="k">${escapeHtml(e.nom)} ${badgeHtml(e.statut)}</span>
-        <span class="v" style="color:${e.diff < 0 ? "var(--danger)" : "var(--warning)"};font-weight:700;">${label(e.diff)}</span>
+        <span class="v" style="color:${e.diff < 0 ? "var(--danger)" : "var(--warning)"};font-weight:700;display:inline-flex;align-items:center;">${label(e.diff)}</span>
       </div>
     `).join("")
-    : `<div class="empty-state">Aucune relance urgente 🎉</div>`;
+    : `<div class="empty-state">Aucune relance urgente pour le moment.</div>`;
 
   document.getElementById("relances-all").innerHTML = all.length
     ? all.map(e => `
