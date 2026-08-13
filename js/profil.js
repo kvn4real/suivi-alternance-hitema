@@ -95,7 +95,7 @@ function renderCvStatus(cvUrl) {
   if (btn) {
     btn.addEventListener("click", async () => {
       const { data, error } = await supabaseClient.storage.from("cv").createSignedUrl(cvUrl, 60);
-      if (error) { alert("Erreur : " + error.message); return; }
+      if (error) { showToast("Erreur : " + error.message, "error"); return; }
       window.open(data.signedUrl, "_blank");
     });
   }
