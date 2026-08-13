@@ -50,7 +50,7 @@ async function loadCampagnes() {
   const grid = document.getElementById("campagnes-grid");
 
   if (!ALL_CAMPAGNES.length) {
-    grid.innerHTML = `<div class="empty-state"><div class="icon">📁</div>Aucune campagne créée pour le moment.</div>`;
+    grid.innerHTML = `<div class="empty-state"><div class="icon">${ICONS.folder}</div>Aucune campagne créée pour le moment.</div>`;
     return;
   }
 
@@ -62,7 +62,7 @@ async function loadCampagnes() {
         <h3>${escapeHtml(c.nom)}</h3>
         <p style="color:var(--text-muted);font-size:13px;margin-top:4px;">${fmtDate(c.date_debut)}</p>
         <p style="margin-top:12px;font-size:22px;font-weight:800;">${ents.length} <span style="font-size:13px;font-weight:600;color:var(--text-muted);">entreprises</span></p>
-        ${acceptees ? `<p style="color:var(--primary-dark);font-size:13px;font-weight:700;margin-top:4px;">✅ ${acceptees} acceptée(s)</p>` : ""}
+        ${acceptees ? `<p style="color:var(--primary-dark);font-size:13px;font-weight:700;margin-top:4px;display:inline-flex;align-items:center;"><span class="icon">${ICONS.check}</span>${acceptees} acceptée(s)</p>` : ""}
       </div>
     `;
   }).join("");
