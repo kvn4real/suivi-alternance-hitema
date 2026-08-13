@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Entreprises</title>
+<title>Entreprises — Alternance Suite</title>
 <link rel="icon" type="image/x-icon" href="../favicon.ico" />
 <link rel="stylesheet" href="../style.css" />
 </head>
@@ -29,10 +29,14 @@
 
       <div class="toolbar">
         <input type="text" class="search-input" id="search-input" placeholder="Rechercher une entreprise..." style="padding:10px 12px;border-radius:10px;border:1px solid var(--border);" />
+        <div class="view-toggle" id="view-toggle">
+          <button type="button" class="view-toggle-btn" data-view="table">Tableau</button>
+          <button type="button" class="view-toggle-btn" data-view="kanban">Kanban</button>
+        </div>
       </div>
       <div class="filter-chips" id="filter-chips" style="margin-bottom:16px;"></div>
 
-      <div class="panel">
+      <div class="panel" id="view-table">
         <div class="table-wrap">
           <table class="data-table">
             <thead>
@@ -43,6 +47,8 @@
         </div>
         <div id="empty-state"></div>
       </div>
+
+      <div class="kanban-board hidden" id="view-kanban"></div>
     </div>
   </div>
 </div>
