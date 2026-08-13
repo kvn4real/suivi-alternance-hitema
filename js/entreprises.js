@@ -20,6 +20,11 @@ let PARSED_CSV_ROWS = [];
 
   renderToolbar();
   renderFilterChips();
+  document.getElementById("entreprises-tbody").innerHTML = `
+    <tr><td colspan="6"><div class="skeleton-line" style="height:16px;"></div></td></tr>
+    <tr><td colspan="6"><div class="skeleton-line" style="height:16px;width:85%;"></div></td></tr>
+    <tr><td colspan="6"><div class="skeleton-line" style="height:16px;width:70%;"></div></td></tr>
+  `;
   await loadCampagnesOptions();
   await loadEntreprises();
 
@@ -34,31 +39,57 @@ let PARSED_CSV_ROWS = [];
 
 function renderToolbar() {
   const toolbar = document.getElementById("toolbar-actions");
+  const densityBtn = `
+    <button class="btn btn-ghost density-toggle" id="btn-toggle-density" title="Basculer la densité du tableau">
+      <span class="icon">${ICONS.chart}</span><span id="density-label">Vue compacte</span>
+    </button>
+  `;
   if (CURRENT_PROFILE.role === "candidate") {
     toolbar.innerHTML = `
       <button class="btn btn-primary" id="btn-add-entreprise">+ Ajouter une entreprise</button>
       <button class="btn" id="btn-open-import"><span class="icon">${ICONS.download}</span>Importer des entreprises</button>
+      ${densityBtn}
     `;
     document.getElementById("btn-add-entreprise").addEventListener("click", () => openEntrepriseForm(null));
     document.getElementById("btn-open-import").addEventListener("click", openImportModal);
   } else {
-    toolbar.innerHTML = `<p style="color:var(--text-muted);font-size:14px;">Consultation des entreprises suivies.</p>`;
+    toolbar.innerHTML = `<p style="color:var(--text-muted);font-size:14px;">Consultation des entreprises suivies.</p>${densityBtn}`;
   }
+
+  const table = document.querySelector("table.data-table");
+  const isCompact = localStorage.getItem("entreprises-density") === "compact";
+  table.classList.toggle("compact", isCompact);
+  document.getElementById("density-label").textContent = isCompact ? "Vue confortable" : "Vue compacte";
+  document.getElementById("btn-toggle-density").addEventListener("click", () => {
+    const nowCompact = !table.classList.contains("compact");
+    table.classList.toggle("compact", nowCompact);
+    localStorage.setItem("entreprises-density", nowCompact ? "compact" : "comfortable");
+    document.getElementById("density-label").textContent = nowCompact ? "Vue confortable" : "Vue compacte";
+  });
 }
 
 async function loadCampagnesOptions() {
-  const select = document.getElementById("ent-campagne_id");
-  if (!select) return;
+  const selectForm = document.getElementById("ent-campagne_id");
+  const selectImport = document.getElementById("import-campagne_id");
+  if (!selectForm && !selectImport) return;
   const { data } = await supabaseClient
     .from("campagnes")
     .select("id, nom")
     .eq("candidate_id", CURRENT_CANDIDATE_ID)
     .order("date_debut", { ascending: false });
   (data || []).forEach(c => {
-    const opt = document.createElement("option");
-    opt.value = c.id;
-    opt.textContent = c.nom;
-    select.appendChild(opt);
+    if (selectForm) {
+      const opt = document.createElement("option");
+      opt.value = c.id;
+      opt.textContent = c.nom;
+      selectForm.appendChild(opt);
+    }
+    if (selectImport) {
+      const opt2 = document.createElement("option");
+      opt2.value = c.id;
+      opt2.textContent = c.nom;
+      selectImport.appendChild(opt2);
+    }
   });
 }
 
@@ -116,12 +147,12 @@ function renderTable() {
 
   tbody.innerHTML = rows.map(e => `
     <tr data-id="${e.id}">
-      <td><b>${escapeHtml(e.nom)}</b></td>
-      <td>${escapeHtml(e.secteur || "—")}</td>
-      <td>${escapeHtml(e.localisation || "—")}</td>
-      <td>${escapeHtml(e.poste || "—")}</td>
-      <td>${badgeHtml(e.statut)}</td>
-      <td>${fmtDate(e.date_ajout)}</td>
+      <td data-label="Nom"><b>${escapeHtml(e.nom)}</b></td>
+      <td data-label="Secteur">${escapeHtml(e.secteur || "—")}</td>
+      <td data-label="Ville">${escapeHtml(e.localisation || "—")}</td>
+      <td data-label="Poste">${escapeHtml(e.poste || "—")}</td>
+      <td data-label="Statut">${badgeHtml(e.statut)}</td>
+      <td data-label="Date">${fmtDate(e.date_ajout)}</td>
     </tr>
   `).join("");
 
@@ -205,9 +236,10 @@ async function updateStatut(id, statut) {
   const patch = { statut };
   if (statut === "Candidature envoyée") patch.date_candidature = new Date().toISOString().slice(0, 10);
   const { error } = await supabaseClient.from("entreprises").update(patch).eq("id", id);
-  if (error) { alert("Erreur : " + error.message); return; }
+  if (error) { showToast("Erreur : " + error.message, "error"); return; }
   const ent = ALL_ENTREPRISES.find(x => x.id === id);
   await logActivity(CURRENT_CANDIDATE_ID, id, "Statut modifié", `${ent?.nom || ""} → ${statut}`);
+  showToast("Statut mis à jour.", "success");
   await loadEntreprises();
 }
 
@@ -252,7 +284,7 @@ async function addNote(ev, entrepriseId) {
     contenu,
     type: "note",
   });
-  if (error) { alert("Erreur : " + error.message); return; }
+  if (error) { showToast("Erreur : " + error.message, "error"); return; }
 
   const ent = ALL_ENTREPRISES.find(x => x.id === entrepriseId);
   await logActivity(CURRENT_CANDIDATE_ID, entrepriseId, "Note ajoutée", `Note ajoutée sur ${ent?.nom || ""}`);
@@ -300,13 +332,13 @@ async function generateLetter(entrepriseId, nom) {
     });
     const data = await res.json();
     if (!res.ok) {
-      alert(data.error || "Erreur lors de la génération.");
+      showToast(data.error || "Erreur lors de la génération.", "error");
       return;
     }
     await loadLettresForEntreprise(entrepriseId);
     window.location.href = `lettres.html?id=${data.lettre.id}`;
   } catch (e) {
-    alert("Erreur réseau lors de l'appel à l'IA.");
+    showToast("Erreur réseau lors de l'appel à l'IA.", "error");
     console.error(e);
   } finally {
     btn.disabled = false;
@@ -377,11 +409,12 @@ async function saveEntreprise() {
 }
 
 async function deleteEntreprise(id) {
-  if (!(await confirmDialog("Êtes-vous sûr de vouloir supprimer cette entreprise ?"))) return;
+  if (!(await confirmDialog("Êtes-vous sûr de vouloir supprimer cette entreprise ? Cette action est irréversible.", { title: "Supprimer l'entreprise" }))) return;
   const ent = ALL_ENTREPRISES.find(x => x.id === id);
   const { error } = await supabaseClient.from("entreprises").delete().eq("id", id);
-  if (error) { alert("Erreur : " + error.message); return; }
+  if (error) { showToast("Erreur : " + error.message, "error"); return; }
   await logActivity(CURRENT_CANDIDATE_ID, null, "Entreprise supprimée", ent?.nom || "");
+  showToast("Entreprise supprimée.", "success");
   closeModal("modal-detail");
   await loadEntreprises();
 }
@@ -395,6 +428,8 @@ function openImportModal() {
   document.getElementById("csv-preview").innerHTML = "";
   document.getElementById("import-error").textContent = "";
   document.getElementById("btn-confirm-import").disabled = true;
+  const campSelect = document.getElementById("import-campagne_id");
+  if (campSelect) campSelect.value = "";
   openModal("modal-import");
 
   document.getElementById("csv-file").onchange = handleCsvFile;
@@ -461,6 +496,8 @@ async function confirmImport() {
   btn.disabled = true;
   btn.textContent = "Import en cours...";
 
+  const campagneId = document.getElementById("import-campagne_id")?.value || null;
+
   const payload = PARSED_CSV_ROWS.map(r => ({
     candidate_id: CURRENT_CANDIDATE_ID,
     nom: r.nom,
@@ -472,6 +509,7 @@ async function confirmImport() {
     url_offre: r.url_offre || null,
     description: r.description || null,
     telephone: r.telephone || null,
+    campagne_id: campagneId,
   }));
 
   const { error } = await supabaseClient.from("entreprises").insert(payload);
@@ -484,6 +522,7 @@ async function confirmImport() {
   }
 
   await logActivity(CURRENT_CANDIDATE_ID, null, "Import CSV", `${payload.length} entreprises importées`);
+  showToast(`${payload.length} entreprise(s) importée(s).`, "success");
   closeModal("modal-import");
   await loadEntreprises();
 }
