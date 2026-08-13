@@ -44,7 +44,7 @@
       .single();
 
     document.getElementById("panel-linked-candidate").innerHTML = `
-      <h3 style="margin-bottom:8px;">👤 Candidat suivi</h3>
+      <h3 style="margin-bottom:8px;"><span class="icon">${ICONS.user}</span>Candidat suivi</h3>
       <p style="color:var(--text-muted);font-size:14px;">
         Tu suis la recherche d'alternance de <b>${escapeHtml([candidate?.prenom, candidate?.nom].filter(Boolean).join(" ") || candidate?.email || "")}</b>.
       </p>
