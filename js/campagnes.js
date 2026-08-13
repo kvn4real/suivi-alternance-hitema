@@ -11,6 +11,7 @@ let ALL_CAMPAGNES = [];
   CAMP_CANDIDATE_ID = CAMP_PROFILE.role === "candidate" ? CAMP_PROFILE.id : CAMP_PROFILE.candidate_id;
 
   renderShell({ profile: CAMP_PROFILE, activePage: "campagnes.html", title: "Campagnes" });
+  document.getElementById("campagnes-grid").innerHTML = skeletonCards(3);
 
   if (CAMP_PROFILE.role === "candidate") {
     document.getElementById("toolbar-actions").innerHTML = `<button class="btn btn-primary" id="btn-new-campagne">+ Nouvelle campagne</button>`;
