@@ -3,6 +3,7 @@
 let ALL_ENTREPRISES = [];
 let CURRENT_FILTER = "Toutes";
 let CURRENT_SEARCH = "";
+let CURRENT_VIEW = localStorage.getItem("entreprises-view") || "table";
 let CURRENT_PROFILE = null;
 let CURRENT_CANDIDATE_ID = null;
 let CURRENT_SESSION = null;
@@ -30,12 +31,35 @@ let PARSED_CSV_ROWS = [];
 
   document.getElementById("search-input").addEventListener("input", (e) => {
     CURRENT_SEARCH = e.target.value.toLowerCase();
-    renderTable();
+    renderView();
   });
+
+  document.querySelectorAll(".view-toggle-btn").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.view === CURRENT_VIEW);
+    btn.addEventListener("click", () => {
+      CURRENT_VIEW = btn.dataset.view;
+      localStorage.setItem("entreprises-view", CURRENT_VIEW);
+      document.querySelectorAll(".view-toggle-btn").forEach(b => b.classList.toggle("active", b === btn));
+      if (CURRENT_VIEW === "kanban") {
+        CURRENT_FILTER = "Toutes";
+        renderFilterChips();
+      }
+      applyView();
+      renderView();
+    });
+  });
+  applyView();
 
   document.getElementById("entreprise-form").addEventListener("submit", (e) => e.preventDefault());
   document.getElementById("btn-save-entreprise").addEventListener("click", saveEntreprise);
 })();
+
+function applyView() {
+  document.getElementById("view-table").classList.toggle("hidden", CURRENT_VIEW !== "table");
+  document.getElementById("view-kanban").classList.toggle("hidden", CURRENT_VIEW !== "kanban");
+  // En vue Kanban, les colonnes remplacent déjà les filtres de statut.
+  document.getElementById("filter-chips").classList.toggle("hidden", CURRENT_VIEW === "kanban");
+}
 
 function renderToolbar() {
   const toolbar = document.getElementById("toolbar-actions");
@@ -102,7 +126,7 @@ function renderFilterChips() {
     chip.addEventListener("click", () => {
       CURRENT_FILTER = chip.dataset.filter;
       renderFilterChips();
-      renderTable();
+      renderView();
     });
   });
 }
@@ -119,7 +143,12 @@ async function loadEntreprises() {
     return;
   }
   ALL_ENTREPRISES = data || [];
-  renderTable();
+  renderView();
+}
+
+function renderView() {
+  if (CURRENT_VIEW === "kanban") renderKanban();
+  else renderTable();
 }
 
 function filteredEntreprises() {
@@ -158,6 +187,86 @@ function renderTable() {
 
   tbody.querySelectorAll("tr").forEach(tr => {
     tr.addEventListener("click", () => openDetail(tr.dataset.id));
+  });
+}
+
+// ============================================================
+// VUE KANBAN
+// ============================================================
+function kanbanFilteredEntreprises() {
+  // La recherche s'applique, mais pas le filtre de statut (représenté par les colonnes).
+  return ALL_ENTREPRISES.filter(e => {
+    if (CURRENT_SEARCH) {
+      const haystack = [e.nom, e.email, e.localisation, e.secteur, e.poste].filter(Boolean).join(" ").toLowerCase();
+      if (!haystack.includes(CURRENT_SEARCH)) return false;
+    }
+    return true;
+  });
+}
+
+function renderKanban() {
+  const board = document.getElementById("view-kanban");
+  const rows = kanbanFilteredEntreprises();
+  const isCandidate = CURRENT_PROFILE.role === "candidate";
+
+  board.innerHTML = STATUT_ORDER.map(statut => {
+    const cards = rows.filter(e => e.statut === statut);
+    return `
+      <div class="kanban-column" data-statut="${escapeHtml(statut)}">
+        <div class="kanban-column-header">
+          <span>${escapeHtml(statut)}</span>
+          <span class="kanban-column-count">${cards.length}</span>
+        </div>
+        <div class="kanban-cards" data-statut="${escapeHtml(statut)}">
+          ${cards.length ? cards.map(e => `
+            <div class="kanban-card" draggable="${isCandidate}" data-id="${e.id}">
+              <div class="kc-nom">${escapeHtml(e.nom)}</div>
+              ${e.poste ? `<div class="kc-poste">${escapeHtml(e.poste)}</div>` : ""}
+              <div class="kc-date">${fmtDate(e.date_ajout)}</div>
+            </div>
+          `).join("") : `<div class="kanban-empty">Vide</div>`}
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  // Ouvrir le détail au clic sur une carte
+  board.querySelectorAll(".kanban-card").forEach(card => {
+    card.addEventListener("click", () => openDetail(card.dataset.id));
+  });
+
+  if (!isCandidate) return; // l'accompagnateur ne peut pas glisser les cartes
+
+  // Drag & drop
+  let draggedId = null;
+
+  board.querySelectorAll(".kanban-card").forEach(card => {
+    card.addEventListener("dragstart", (e) => {
+      draggedId = card.dataset.id;
+      card.classList.add("dragging");
+      e.dataTransfer.effectAllowed = "move";
+    });
+    card.addEventListener("dragend", () => {
+      card.classList.remove("dragging");
+      draggedId = null;
+    });
+  });
+
+  board.querySelectorAll(".kanban-column").forEach(col => {
+    col.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      col.classList.add("drag-over");
+    });
+    col.addEventListener("dragleave", () => col.classList.remove("drag-over"));
+    col.addEventListener("drop", async (e) => {
+      e.preventDefault();
+      col.classList.remove("drag-over");
+      if (!draggedId) return;
+      const newStatut = col.dataset.statut;
+      const ent = ALL_ENTREPRISES.find(x => x.id === draggedId);
+      if (!ent || ent.statut === newStatut) return;
+      await updateStatut(draggedId, newStatut);
+    });
   });
 }
 
