@@ -26,6 +26,7 @@ let CUR_SESSION = null;
 async function showList() {
   document.getElementById("letters-list-panel").classList.remove("hidden");
   document.getElementById("letter-editor-panel").classList.add("hidden");
+  document.getElementById("letters-table").innerHTML = skeletonRows(4, 18);
 
   const { data, error } = await supabaseClient
     .from("lettres")
@@ -113,7 +114,7 @@ async function showEditor(letterId) {
         .from("lettres")
         .update({ contenu: textarea.value })
         .eq("id", letterId);
-      if (updErr) { alert("Erreur : " + updErr.message); return; }
+      if (updErr) { showToast("Erreur : " + updErr.message, "error"); return; }
       textarea.readOnly = true;
       document.getElementById("btn-save").classList.add("hidden");
       flashButton("btn-save", `<span class="icon">${ICONS.check}</span>Enregistré`);
@@ -131,7 +132,7 @@ async function showEditor(letterId) {
           body: JSON.stringify({ entreprise_id: lettre.entreprises.id }),
         });
         const data = await res.json();
-        if (!res.ok) { alert(data.error || "Erreur lors de la régénération."); return; }
+        if (!res.ok) { showToast(data.error || "Erreur lors de la régénération.", "error"); return; }
         window.location.href = `lettres.html?id=${data.lettre.id}`;
       } finally {
         btn.disabled = false;
@@ -140,9 +141,9 @@ async function showEditor(letterId) {
     });
 
     document.getElementById("btn-delete-letter").addEventListener("click", async () => {
-      if (!(await confirmDialog("Supprimer définitivement cette lettre ?"))) return;
+      if (!(await confirmDialog("Supprimer définitivement cette lettre ? Cette action est irréversible.", { title: "Supprimer la lettre" }))) return;
       const { error: delErr } = await supabaseClient.from("lettres").delete().eq("id", letterId);
-      if (delErr) { alert("Erreur : " + delErr.message); return; }
+      if (delErr) { showToast("Erreur : " + delErr.message, "error"); return; }
       window.location.href = "lettres.html";
     });
   }
