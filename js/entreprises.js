@@ -68,17 +68,25 @@ function renderToolbar() {
       <span class="icon">${ICONS.chart}</span><span id="density-label">Vue compacte</span>
     </button>
   `;
+  const exportBtns = `
+    <button class="btn" id="btn-export-csv"><span class="icon">${ICONS.file}</span>Exporter CSV</button>
+    <button class="btn" id="btn-export-pdf"><span class="icon">${ICONS.file}</span>Exporter PDF</button>
+  `;
   if (CURRENT_PROFILE.role === "candidate") {
     toolbar.innerHTML = `
       <button class="btn btn-primary" id="btn-add-entreprise">+ Ajouter une entreprise</button>
       <button class="btn" id="btn-open-import"><span class="icon">${ICONS.download}</span>Importer des entreprises</button>
+      ${exportBtns}
       ${densityBtn}
     `;
     document.getElementById("btn-add-entreprise").addEventListener("click", () => openEntrepriseForm(null));
     document.getElementById("btn-open-import").addEventListener("click", openImportModal);
   } else {
-    toolbar.innerHTML = `<p style="color:var(--text-muted);font-size:14px;">Consultation des entreprises suivies.</p>${densityBtn}`;
+    toolbar.innerHTML = `<p style="color:var(--text-muted);font-size:14px;">Consultation des entreprises suivies.</p>${exportBtns}${densityBtn}`;
   }
+
+  document.getElementById("btn-export-csv").addEventListener("click", exportCsv);
+  document.getElementById("btn-export-pdf").addEventListener("click", exportPdf);
 
   const table = document.querySelector("table.data-table");
   const isCompact = localStorage.getItem("entreprises-density") === "compact";
@@ -268,6 +276,90 @@ function renderKanban() {
       await updateStatut(draggedId, newStatut);
     });
   });
+}
+
+// ============================================================
+// EXPORT
+// ============================================================
+const EXPORT_COLUMNS = [
+  { key: "nom", label: "Nom" },
+  { key: "secteur", label: "Secteur" },
+  { key: "localisation", label: "Ville" },
+  { key: "poste", label: "Poste" },
+  { key: "statut", label: "Statut" },
+  { key: "email", label: "Email" },
+  { key: "telephone", label: "Téléphone" },
+  { key: "site_web", label: "Site web" },
+  { key: "url_offre", label: "URL offre" },
+  { key: "date_candidature", label: "Date candidature", fmt: fmtDate },
+  { key: "date_relance", label: "Date relance", fmt: fmtDate },
+  { key: "date_ajout", label: "Date ajout", fmt: fmtDate },
+];
+
+function csvEscape(value) {
+  const str = value === null || value === undefined ? "" : String(value);
+  if (/[",\n;]/.test(str)) return `"${str.replaceAll('"', '""')}"`;
+  return str;
+}
+
+function exportCsv() {
+  const rows = filteredEntreprises();
+  if (!rows.length) { showToast("Aucune entreprise à exporter.", "error"); return; }
+
+  const header = EXPORT_COLUMNS.map(c => c.label).join(";");
+  const lines = rows.map(e =>
+    EXPORT_COLUMNS.map(c => csvEscape(c.fmt ? c.fmt(e[c.key]) : e[c.key])).join(";")
+  );
+  const csv = "\uFEFF" + [header, ...lines].join("\n"); // BOM pour un bon affichage des accents dans Excel
+
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `entreprises-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  showToast(`${rows.length} entreprise(s) exportée(s) en CSV.`, "success");
+}
+
+function exportPdf() {
+  const rows = filteredEntreprises();
+  if (!rows.length) { showToast("Aucune entreprise à exporter.", "error"); return; }
+  if (typeof window.jspdf === "undefined") { showToast("Le module PDF n'a pas pu se charger.", "error"); return; }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: "landscape", unit: "pt", format: "a4" });
+
+  doc.setFontSize(14);
+  doc.text("Suivi des candidatures — Alternance Suite", 40, 36);
+  doc.setFontSize(9);
+  doc.setTextColor(120);
+  doc.text(`Exporté le ${fmtDate(new Date().toISOString())} · ${rows.length} entreprise(s)`, 40, 52);
+
+  const head = [["Nom", "Secteur", "Ville", "Poste", "Statut", "Date candidature", "Date relance"]];
+  const body = rows.map(e => [
+    e.nom || "—",
+    e.secteur || "—",
+    e.localisation || "—",
+    e.poste || "—",
+    e.statut || "—",
+    fmtDate(e.date_candidature),
+    fmtDate(e.date_relance),
+  ]);
+
+  doc.autoTable({
+    head,
+    body,
+    startY: 66,
+    styles: { fontSize: 8, cellPadding: 5 },
+    headStyles: { fillColor: [22, 168, 121], textColor: 255 },
+    alternateRowStyles: { fillColor: [245, 247, 248] },
+  });
+
+  doc.save(`entreprises-${new Date().toISOString().slice(0, 10)}.pdf`);
+  showToast(`${rows.length} entreprise(s) exportée(s) en PDF.`, "success");
 }
 
 // ============================================================
