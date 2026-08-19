@@ -497,53 +497,82 @@ async function addNote(ev, entrepriseId) {
 // ============================================================
 // LETTRES
 // ============================================================
-async function loadLettresForEntreprise(entrepriseId) {
-  const { data } = await supabaseClient
-    .from("lettres")
-    .select("id,titre,created_at")
-    .eq("entreprise_id", entrepriseId)
-    .order("created_at", { ascending: false });
-
-  const list = document.getElementById("letters-list");
-  if (!data || !data.length) {
-    list.innerHTML = `<p style="color:var(--text-muted);font-size:13px;">Aucune lettre générée pour cette entreprise.</p>`;
-    return;
-  }
-  list.innerHTML = data.map((l, i) => `
-    <div class="detail-row">
-      <span class="k">Lettre #${data.length - i} — ${escapeHtml(l.titre || "")}</span>
-      <span class="v"><a href="lettres.html?id=${l.id}" class="btn btn-sm btn-ghost">${fmtDate(l.created_at)} · Voir <span class="icon" style="margin-right:0;margin-left:4px;">${ICONS.arrowRight}</span></a></span>
-    </div>
-  `).join("");
-}
-
 async function generateLetter(entrepriseId, nom) {
   const btn = document.getElementById("btn-generate-letter");
+
   btn.disabled = true;
   btn.textContent = "Génération en cours...";
 
   try {
-    const res = await fetch(`${FUNCTIONS_URL}/generate-letter`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${CURRENT_SESSION.access_token}`,
-      },
-      body: JSON.stringify({ entreprise_id: entrepriseId }),
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      showToast(data.error || "Erreur lors de la génération.", "error");
+    // Récupérer une session fraîche
+    const {
+      data: { session },
+      error: sessionError,
+    } = await supabaseClient.auth.getSession();
+
+    if (sessionError || !session) {
+      showToast("Votre session a expiré. Veuillez vous reconnecter.", "error");
       return;
     }
+
+    const res = await fetch(
+      `${FUNCTIONS_URL}/generate-letter`,
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json",
+
+          "Authorization": `Bearer ${session.access_token}`,
+
+          "apikey": SUPABASE_ANON_KEY,
+        },
+
+        body: JSON.stringify({
+          entreprise_id: entrepriseId,
+        }),
+      }
+    );
+
+    // Lire la réponse même en cas d'erreur
+    const data = await res.json();
+
+    if (!res.ok) {
+      console.error(
+        "Erreur generate-letter :",
+        res.status,
+        data
+      );
+
+      showToast(
+        data.error || "Erreur lors de la génération.",
+        "error"
+      );
+
+      return;
+    }
+
     await loadLettresForEntreprise(entrepriseId);
-    window.location.href = `lettres.html?id=${data.lettre.id}`;
-  } catch (e) {
-    showToast("Erreur réseau lors de l'appel à l'IA.", "error");
-    console.error(e);
+
+    window.location.href =
+      `lettres.html?id=${data.lettre.id}`;
+
+  } catch (error) {
+    console.error(
+      "Erreur réseau generate-letter :",
+      error
+    );
+
+    showToast(
+      "Impossible de contacter le service de génération.",
+      "error"
+    );
+
   } finally {
     btn.disabled = false;
-    btn.innerHTML = `<span class="icon">${ICONS.sparkle}</span>Générer ma lettre`;
+
+    btn.innerHTML =
+      `<span class="icon">${ICONS.sparkle}</span>Générer ma lettre`;
   }
 }
 
